@@ -12,6 +12,14 @@
       padding: 20px;
       max-width: 800px;
     }
+
+    input, button {
+      font-size: 20px;
+      padding: 6px 10px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+
     #verse {
       margin-top: 10px;
       font-style: italic;
@@ -19,21 +27,37 @@
   </style>
 </head>
 <body>
-  <div id="reference"><strong>Loading verse...</strong></div>
+  <label for="verseInput">Enter Verse Reference:</label><br>
+  <input id="verseInput" type="text" placeholder="e.g., John 3:16">
+  <button onclick="fetchVerse()">Get Verse</button>
+
+  <div id="reference"><strong>Verse will appear here...</strong></div>
   <div id="verse"></div>
 
   <script>
-    const reference = "John 3:16"; // You can change this to any verse
-    fetch(`https://bible-api.com/${encodeURIComponent(reference)}`)
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById('reference').innerText = `${data.reference} (KJV)`;
-        document.getElementById('verse').innerText = data.text.trim();
-      })
-      .catch(error => {
-        document.getElementById('reference').innerText = "Error fetching verse.";
-        console.error(error);
-      });
+    function fetchVerse() {
+      const reference = document.getElementById('verseInput').value;
+      if (!reference.trim()) return;
+
+      document.getElementById('reference').innerText = "Loading...";
+      document.getElementById('verse').innerText = "";
+
+      fetch(`https://bible-api.com/${encodeURIComponent(reference)}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            document.getElementById('reference').innerText = "Verse not found.";
+            document.getElementById('verse').innerText = "";
+          } else {
+            document.getElementById('reference').innerText = `${data.reference} (KJV)`;
+            document.getElementById('verse').innerText = data.text.trim();
+          }
+        })
+        .catch(error => {
+          document.getElementById('reference').innerText = "Error fetching verse.";
+          console.error(error);
+        });
+    }
   </script>
 </body>
 </html>
